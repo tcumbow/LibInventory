@@ -197,6 +197,11 @@ function infoFunctions.armorType(self)
     if self.empty then return nil end
     return GetItemArmorType(self.bagId, self.slotIndex)
 end
+function infoFunctions.glyph(self)
+    if self.empty then return nil end
+    return self.type == ITEMTYPE_GLYPH_ARMOR or self.type == ITEMTYPE_GLYPH_JEWELRY or self.type == ITEMTYPE_GLYPH_WEAPON
+end
+infoFunctions.isGlyph = infoFunctions.glyph
 
 --------------------------------------------------------------
 
@@ -273,6 +278,7 @@ function li.Slot(bagId, slotIndex)
         weapon = nil,
         armor = nil,
         armorType = nil,
+        glyph = nil,
     }, metatableForSlotObjects)
 end
 

@@ -1,11 +1,10 @@
 -- note to reader: this file is best read from the bottom up
 
-local li = {}
-
 ------------------------------------------------------------------------
-
+-- infoFunctions table
+-- These power the properties of the slot objects
+-- (I could have just included these as a series of 'elseif' statements in the SlotIndexHandler function, but I figured a table lookup would be faster)
 local infoFunctions = {}
-
 function infoFunctions.count(self)
     return GetSlotStackSize(self.bagId, self.slotIndex)
 end
@@ -204,7 +203,9 @@ end
 infoFunctions.isGlyph = infoFunctions.glyph
 
 --------------------------------------------------------------
-
+-- actionFunctions table
+-- These power the methods of the slot objects
+-- (I could have just included these as a series of 'elseif' statements in the SlotIndexHandler function, but I wanted to be consistent with the infoFunctions table)
 local actionFunctions = {}
 function actionFunctions.Sell(self, count)
     if self.empty then return end
@@ -217,29 +218,41 @@ end
 
 --------------------------------------------------------------
 
+-- By the magic of "setmetatable", this function gets called when someone tries to access a nil property/method on a slot object
 local function SlotIndexHandler (self, key)
     if infoFunctions[key] then
         local value = infoFunctions[key](self)
-        self[key] = value
+        self[key] = value -- cache the value in the object itself, so this function doesn't get called again for the same key
+        -- no cache invalidation is implemented because slot objects are intended to be short-lived
         return value
     elseif actionFunctions[key] then
-        return actionFunctions[key]
+        return actionFunctions[key] -- no caching is done here, because you shouldn't be selling the same slot twice in a row anyway
     else
-        error("SlotInfoHandler: No handler for key: " .. key)
+        error("LibInventory: SlotInfoHandler: No handler for key: " .. key)
+        -- if this occurs because someone guessed about property name that turned out to not exist, we might want to add an alias for the key to support user-friendlyness
     end
 end
 
-local metatableForSlotObjects = {
+-- Used directly by setmetatable; a metatable is basically a table of configuration options that can be applied to other tables
+-- in this case, we are using the "__index" option to tell Lua to call the SlotIndexHandler function when someone tries to access a nil property/method on a slot object
+-- (note that __index can can also be set to a table, in which case it will be used as a fallback for missing keys, that's a much more common use of __index)
+local metatableForSlotObjects = { -- normally, for readability, I would just inline this in the setmetatable call, but we are going to be creating a lot of these objects, so reusing the same metatable is worth it for the performance
     __index = SlotIndexHandler,
 }
 
-function li.Slot(bagId, slotIndex)
+--------------------------------------------------------------
+-- Public API
+LibInventory = LibInventory or {}
+
+-- Returns a slot object for the given bagId and slotIndex.
+-- The slot object is a point-in-time, lazy-evaluated, auto-caching snapshot that should NOT be stored for later use.
+function LibInventory.Slot(bagId, slotIndex)
     assert(type(bagId) == "number", "bagId must be a number")
     assert(type(slotIndex) == "number", "slotIndex must be a number")
-    return setmetatable({
+    return setmetatable({ -- usually, developers would create a local table variable and call setmetatable on that, but you can also just call setmetatable directly on the table literal and it will return the resulting table (and Intellisense seems to like it better this way)
         bagId = bagId,
         slotIndex = slotIndex,
-        count = nil, -- these nils are only here to give IntelliSense a hint about what properties are available
+        count = nil, -- these remaining nils are only here to give IntelliSense a hint about what properties are available
         notEmpty = nil,
         empty = nil,
         link = nil,
@@ -279,9 +292,5 @@ function li.Slot(bagId, slotIndex)
         armor = nil,
         armorType = nil,
         glyph = nil,
-    }, metatableForSlotObjects)
+    }, metatableForSlotObjects) -- see comments on metatableForSlotObjects
 end
-
---------------------------------------------------------------
-
-LibInventory = li

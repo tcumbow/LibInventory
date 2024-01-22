@@ -294,3 +294,4 @@ function LibInventory.Slot(bagId, slotIndex)
         glyph = nil,
     }, metatableForSlotObjects) -- see comments on metatableForSlotObjects
 end
+LibInventory.GetSlot = LibInventory.Slot -- alias

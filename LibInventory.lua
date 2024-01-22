@@ -76,6 +76,18 @@ function infoFunctions.baseId(self)
     if self.empty then return nil end
     return GetItemLinkItemId(self.link)
 end
+function infoFunctions.setId(self)
+    if self.empty then return nil end
+    return select(6, GetItemLinkSetInfo(self.link))
+end
+function infoFunctions.setCollectionSlot(self)
+    if self.empty then return nil end
+    return GetItemLinkItemSetCollectionSlot(self.link)
+end
+function infoFunctions.setPieceUnlocked(self)
+    if self.empty then return nil end
+    return IsItemSetCollectionPieceUnlocked(self.baseId)
+end
 function infoFunctions.condition(self)
     if self.empty then return nil end
     return GetItemCondition(self.bagId, self.slotIndex)
@@ -269,6 +281,9 @@ function LibInventory.Slot(bagId, slotIndex)
         uniqueId = nil,
         instanceId = nil,
         baseId = nil,
+        setId = nil,
+        setCollectionSlot = nil,
+        setPieceUnlocked = nil,
         condition = nil,
         stolen = nil,
         bound = nil,

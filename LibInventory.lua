@@ -99,6 +99,24 @@ function infoFunctions.setPieceUnlocked(self)
     if self.empty then return nil end
     return IsItemSetCollectionPieceUnlocked(self.baseId)
 end
+function infoFunctions.recipe(self) -- includes furnishing designs
+    if self.empty then return nil end
+    return self.type == ITEMTYPE_RECIPE
+end
+infoFunctions.isRecipe = infoFunctions.recipe
+function infoFunctions.recipeKnown(self)
+    if self.empty then return nil end
+    return IsItemLinkRecipeKnown(self.link)
+end
+function infoFunctions.motif(self)
+    if self.empty then return nil end
+    return self.type == ITEMTYPE_RACIAL_STYLE_MOTIF
+end
+infoFunctions.isMotif = infoFunctions.motif
+function infoFunctions.motifKnown(self)
+    if self.empty then return nil end
+    return IsItemLinkBookKnown(self.link)
+end
 function infoFunctions.condition(self)
     if self.empty then return nil end
     return GetItemCondition(self.bagId, self.slotIndex)
@@ -296,6 +314,10 @@ function LibInventory.Slot(bagId, slotIndex)
         setId = nil,
         setCollectionSlot = nil,
         setPieceUnlocked = nil,
+        recipe = nil,
+        recipeKnown = nil,
+        motif = nil,
+        motifKnown = nil,
         condition = nil,
         stolen = nil,
         bound = nil,

@@ -35,6 +35,12 @@ function infoFunctions.type(self)
     return GetItemType(self.bagId, self.slotIndex)
 end
 infoFunctions.itemType = infoFunctions.type
+function infoFunctions.specializedType(self)
+    if self.empty then return nil end
+    local _, x = GetItemType(self.bagId, self.slotIndex)
+    return x
+end
+infoFunctions.itemSpecializedType = infoFunctions.specializedType
 function infoFunctions.quality(self)
     if self.empty then return nil end
     return GetItemDisplayQuality(self.bagId, self.slotIndex)
@@ -300,6 +306,7 @@ function LibInventory.Slot(bagId, slotIndex)
         rawName = nil,
         name = nil,
         type = nil,
+        specializedType = nil,
         quality = nil,
         qualityIsGoldOrBetter = nil,
         qualityIsPurpleOrBetter = nil,
